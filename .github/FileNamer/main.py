@@ -47,7 +47,7 @@ def rename_files(folder_path2, prefix):
                 moru = parts[1]
                 if name == filename.split("_")[0]:
                     print("Removing < 20hz " + filename)
-                    remove_low_frequencies(os.path.join(root, new_filename),20)
+                    remove_low_frequencies(file,20)
                 else:
                     print("doing " + filename)
                     clicksOrRelease = parts[3]
@@ -84,7 +84,7 @@ def convert_to_ogg(input_file):
         
         print(f"Successfully converted {input_file} to {output_file}")
         remove_low_frequencies(output_file,20)
-        
+
         os.remove(input_file)
         
         return output_file
