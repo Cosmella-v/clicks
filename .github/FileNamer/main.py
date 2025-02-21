@@ -7,17 +7,25 @@ import scipy.signal as signal
 
 
 def remove_low_frequencies(file_path, cutoff):
-    print(file_path)
-    audio = AudioSegment.from_file(file_path, format="ogg", ffmpeg="ffmpeg") 
+    print(f"Processing: {file_path}")
+
+    audio = AudioSegment.from_file(file_path, format="ogg")  
     sample_rate = audio.frame_rate
+    samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+
     nyquist = 0.5 * sample_rate
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(5, normal_cutoff, btype='high', analog=False)
-    samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+
     filtered_samples = signal.lfilter(b, a, samples)
-    filtered_samples = np.int16(filtered_samples)
+
+    filtered_samples = np.clip(filtered_samples, -32768, 32767).astype(np.int16)
+
     filtered_audio = AudioSegment(
-        filtered_samples.tobytes()
+        data=filtered_samples.tobytes(),
+        sample_width=2,  
+        frame_rate=sample_rate,
+        channels=audio.channels
     )
     filtered_audio.export(file_path, format="ogg", codec="libvorbis")
     print(f"Processed and saved: {file_path}")
