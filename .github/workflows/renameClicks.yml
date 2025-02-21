@@ -30,6 +30,7 @@ jobs:
         run: |
           python -m pip install ffmpeg
           python -m pip install pydub
+          python -m pip install pydub scipy numpy
 
       - name: Run Sounds Copier
         run: python ./.github/CopySoundsForRename.py

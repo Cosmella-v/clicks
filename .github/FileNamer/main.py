@@ -2,6 +2,26 @@ import os
 import traceback
 import shutil
 from pydub import AudioSegment
+import numpy as np
+import scipy.signal as signal
+
+def remove_low_frequencies(file_path, cutoff):
+    audio = AudioSegment.from_file(file_path, ffmpeg="ffmpeg")
+    sample_rate = audio.frame_rate
+    nyquist = 0.5 * sample_rate
+    normal_cutoff = cutoff / nyquist
+    b, a = signal.butter(5, normal_cutoff, btype='high', analog=False)
+    samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+    filtered_samples = signal.lfilter(b, a, samples)
+    filtered_samples = np.int16(filtered_samples)
+    filtered_audio = AudioSegment(
+        filtered_samples.tobytes(),
+        frame_rate=audio.frame_rate,
+        sample_width=audio.sample_width,
+        channels=audio.channels
+    )
+    filtered_audio.export(file_path, format="ogg", codec="libvorbis")
+    print(f"Processed and saved: {file_path}")
 
 def find_update_folder():
     for root, dirs, files in os.walk("."):
@@ -26,7 +46,8 @@ def rename_files(folder_path2, prefix):
                 name = parts[2]
                 moru = parts[1]
                 if name == filename.split("_")[0]:
-                    print("not doing " + filename)
+                    print("Removing < 20hz " + filename)
+                    remove_low_frequencies(os.path.join(root, new_filename),20)
                 else:
                     print("doing " + filename)
                     clicksOrRelease = parts[3]
@@ -62,6 +83,8 @@ def convert_to_ogg(input_file):
         audio.export(output_file, format="ogg", codec="libvorbis")
         
         print(f"Successfully converted {input_file} to {output_file}")
+        remove_low_frequencies(output_file,20)
+        
         os.remove(input_file)
         
         return output_file
