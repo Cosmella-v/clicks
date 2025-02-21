@@ -5,6 +5,7 @@ from pydub import AudioSegment
 import numpy as np
 import scipy.signal as signal
 
+
 def remove_low_frequencies(file_path, cutoff):
     print(file_path)
     audio = AudioSegment.from_file(file_path, format="ogg", ffmpeg="ffmpeg") 
@@ -15,6 +16,11 @@ def remove_low_frequencies(file_path, cutoff):
     samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
     filtered_samples = signal.lfilter(b, a, samples)
     filtered_samples = np.int16(filtered_samples)
+    if len(filtered_samples) % (audio.sample_width * audio.channels) != 0:
+        target_length = len(samples) 
+        filtered_samples = filtered_samples[:target_length] 
+        filtered_samples = np.pad(filtered_samples, (0, max(0, target_length - len(filtered_samples))), mode='constant')
+
     filtered_audio = AudioSegment(
         filtered_samples.tobytes(),
         frame_rate=audio.frame_rate,
