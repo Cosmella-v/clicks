@@ -6,7 +6,7 @@ import numpy as np
 import scipy.signal as signal
 
 def remove_low_frequencies(file_path, cutoff):
-    audio = AudioSegment.from_file(file_path, ffmpeg="ffmpeg")
+    audio = AudioSegment.from_file(file_path, ffmpeg="ffmpeg", format = "ogg")
     sample_rate = audio.frame_rate
     nyquist = 0.5 * sample_rate
     normal_cutoff = cutoff / nyquist
