@@ -48,7 +48,7 @@ def rename_files(folder_path2, prefix):
                 moru = parts[1]
                 if name == filename.split("_")[0]:
                     print("Removing < 20hz " + filename)
-                    remove_low_frequencies(file,20)
+                    remove_low_frequencies(os.path.join(root, file),20)
                 else:
                     print("doing " + filename)
                     clicksOrRelease = parts[3]
