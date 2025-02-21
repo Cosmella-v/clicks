@@ -6,10 +6,24 @@ import numpy as np
 import scipy.signal as signal
 
 
+import os
+import numpy as np
+from scipy import signal
+from pydub import AudioSegment
+
 def remove_low_frequencies(file_path, cutoff):
     print(f"Processing: {file_path}")
 
-    audio = AudioSegment.from_file(file_path, format="ogg")  
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        print(f"Error: File '{file_path}' does not exist or is empty.")
+        return
+
+    try:
+        audio = AudioSegment.from_file(file_path, format="ogg")
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return
+
     sample_rate = audio.frame_rate
     samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
 
@@ -23,10 +37,11 @@ def remove_low_frequencies(file_path, cutoff):
 
     filtered_audio = AudioSegment(
         data=filtered_samples.tobytes(),
-        sample_width=2,  
+        sample_width=2,
         frame_rate=sample_rate,
         channels=audio.channels
     )
+
     filtered_audio.export(file_path, format="ogg", codec="libvorbis")
     print(f"Processed and saved: {file_path}")
 
