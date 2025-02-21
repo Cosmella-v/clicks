@@ -68,6 +68,9 @@ def rename_files(folder_path2, prefix):
                 name = parts[2]
                 moru = parts[1]
                 if name == filename.split("_")[0]:
+                    if (file_extension != ".ogg"):
+                        convert_to_ogg(os.path.join(root, file))
+                        print("Bruh the filetype is not .ogg")
                     print("Removing < 20hz " + filename)
                     remove_low_frequencies(os.path.join(root, file),20)
                 else:
